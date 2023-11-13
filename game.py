@@ -165,13 +165,13 @@ class GameEngine:
             # ):
             #     self.target.update(True)
 
-            # if stop_game != True and width_b  < 38 and mapedX > 0 and mapedY > 0:
-            #     if not self.target.rect.collidepoint(
-            #         int(mapedX + width_b / 2), int(mapedY + height_h / 2)
-            #     ):
-            #         self.target.update(False)
-            #         if len(self.list) > 0 and stop_game != True:
-            #             self.list.remove(self.list[len(self.list) - 1])
+            else:
+                if not self.target.rect.collidepoint(
+                    int(mapedX + width_b / 2), int(mapedY + height_h / 2)
+                ):
+                    self.target.update(False)
+                    if len(self.list) > 0 and stop_game != True:
+                        self.list.remove(self.list[len(self.list) - 1])
 
             cv2.imshow("Custom Object Detection", image)
 
@@ -190,21 +190,21 @@ class GameEngine:
         self.post.draw()
         self.target.draw()
 
-        # if len(self.list) == 0:
-        #     previous = self.target.score
-        #     if previous >= highscore:
-        #         highscore = self.target.score
-        #     game_over = "Game Over"
-        #     display_text(
-        #         game_over,
-        #         self.window,
-        #         (self.window.get_width() / 2),
-        #         (self.window.get_height() / 2),
-        #         100,
-        #         (255, 0, 255),
-        #     )
-        #     stop_game = True
-        #     self.target.score = 0
+        if len(self.list) == 0:
+            previous = self.target.score
+            if previous >= highscore:
+                highscore = self.target.score
+            game_over = "Game Over"
+            display_text(
+                game_over,
+                self.window,
+                (self.window.get_width() / 2),
+                (self.window.get_height() / 2),
+                100,
+                (255, 0, 255),
+            )
+            stop_game = True
+            self.target.score = 0
         pyg.display.update()
 
 
@@ -230,10 +230,10 @@ def main(window):
                         lifeSystem(window),
                     ]
                     stop_game = False
-                    previous = game.target.score
-                    if previous >= highscore:
-                        highscore = game.target.score
-                        game.target.score = 0
+                    # previous = game.target.score
+                    # if previous >= highscore:
+                    #     highscore = game.target.score
+                    #     game.target.score = 0
 
         game.upddate()
         # print(stop_game)
