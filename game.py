@@ -116,7 +116,7 @@ class lifeSystem:
     def draw(self, x, y):
         rect = pyg.Rect(x, y, 1, 1)
         self.hartimg = pyg.transform.scale(self.hartimg, (50, 50))
-        # self.window.blit(self.hartimg, rect)
+        self.window.blit(self.hartimg, rect)
 
 
 class GameEngine:
