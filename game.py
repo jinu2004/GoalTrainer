@@ -9,7 +9,7 @@ from utlis import Calibrate as cam
 from Ml import Object
 import cv2
 import numpy as np
-from pygame_animatedgif import AnimatedGifSprite
+import imageio
 
 fps = 60
 pyg.init()
@@ -140,9 +140,6 @@ class GameEngine:
         self.current_gif = int(
             random.randrange(start=0, stop=len(self.list_of_gifs) - 1)
         )
-        self.movie = AnimatedGifSprite(
-            ((self.window.get_height() * 0.5), (self.window.get_height()*0.5)),self.list_of_gifs[self.current_gif]
-        )
 
     def upddate(self):
         global highscore, stop_game
@@ -176,16 +173,6 @@ class GameEngine:
             #     self.target.update(True)
 
             else:
-                current_time = pyg.time.get_ticks()
-                display_time = 3000
-
-                if current_time >= display_time:
-                    pass
-                else:
-                    self.current_gif = int(
-                        random.randrange(start=0, stop=len(self.list_of_gifs) - 1)
-                    )
-
                 self.target.update(False)
                 if len(self.list) > 0 and stop_game != True:
                     # self.list.remove(self.list[len(self.list) - 1])
