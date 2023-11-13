@@ -130,6 +130,17 @@ class GameEngine:
         self.camera.setup()
         self.model_path = "resources/model-fp16-gpu.tflite"
         self.ball = Object(self.model_path, 0.5)
+        self.list_of_gifs = [
+            "resources/goal1.gif",
+            "resources/goal2.gif",
+            "resources/goal3.gif",
+        ]
+
+        self.current_gif = int(
+            random.randrange(start=0, stop=len(self.list_of_gifs) - 1)
+        )
+        self.movie = pyg.movie.Movie(self.list_of_gifs[self.current_gif])
+        self.movie.play()
 
     def upddate(self):
         global highscore, stop_game
@@ -144,17 +155,14 @@ class GameEngine:
             mapedX = np.interp(ballX, (0, width), (0, self.window.get_width()))
             mapedY = np.interp(ballY, (0, height), (0, self.window.get_height()))
 
-            # if self.target.x == mapedX and self.target.y == mapedY:
-            print(
-                "ball x :"
-                + str(int(mapedX + width_b / 2))
-                + " y :"
-                + str(int(mapedY + height_h / 2))
-            )
-            print("target x :" + str(int(self.target.x)) + " y :" + str(self.target.y))
-
-            if self.target.rect.collidepoint(mapedX+(self.target.width/4)+20, mapedY+(self.target.height/4)+20) and stop_game != True:
-                 self.target.update(True)
+            if (
+                self.target.rect.collidepoint(
+                    mapedX + (self.target.width / 4) + 20,
+                    mapedY + (self.target.height / 4) + 20,
+                )
+                and stop_game != True
+            ):
+                self.target.update(True)
 
             # if (
             #     self.target.rect.collidepoint(
@@ -166,12 +174,24 @@ class GameEngine:
             #     self.target.update(True)
 
             else:
-                if not self.target.rect.collidepoint(
-                    int(mapedX + width_b / 2), int(mapedY + height_h / 2)
-                ):
-                    self.target.update(False)
-                    if len(self.list) > 0 and stop_game != True:
-                        self.list.remove(self.list[len(self.list) - 1])
+                current_time = pyg.time.get_ticks()
+                display_time = 3000
+
+                if current_time >= display_time:
+                    pass
+                else:
+                    self.current_gif = int(
+                        random.randrange(start=0, stop=len(self.list_of_gifs) - 1)
+                    )
+
+                self.target.update(False)
+                if len(self.list) > 0 and stop_game != True:
+                    # self.list.remove(self.list[len(self.list) - 1])
+                    #
+                    previous = self.target.score
+                    if previous >= highscore:
+                        highscore = self.target.score
+                        self.target.score = 0
 
             cv2.imshow("Custom Object Detection", image)
 
@@ -201,7 +221,7 @@ class GameEngine:
                 (self.window.get_width() / 2),
                 (self.window.get_height() / 2),
                 100,
-                (255, 0, 255),
+                (255, 0, 0),
             )
             stop_game = True
             self.target.score = 0
