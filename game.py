@@ -17,6 +17,7 @@ pyg.display.set_caption("GolTrainer")
 mixer.init()
 mixer.music.load("resources/backgroundMusic.mp3")
 mixer.music.play(loops=-1)
+mixer.music.set_volume(0.1)
 
 
 info = pyg.display.Info()
@@ -133,8 +134,8 @@ class GameEngine:
         self.camera.setup()
         self.model_path = "resources/model.tflite"
         self.ball = Object(self.model_path, 0.5)
-        self.start_time = 0
-        self.delay_duration = 3000
+        # self.start_time = 0
+        self.delay_duration = 100000
 
     def upddate(self):
         global highscore, stop_game
@@ -150,15 +151,26 @@ class GameEngine:
             mapedX = np.interp(ballX, (0, width), (0, self.window.get_width()))
             mapedY = np.interp(ballY, (0, height), (0, self.window.get_height()))
 
-            if (
-                self.target.rect.collidepoint(
-                    mapedX + (self.target.width / 4) + 20,
-                    mapedY + (self.target.height / 4) + 20,
-                )
+            ball = pyg.Rect(mapedX, mapedY,width_b,height_h)
+
+            # print(self.target.rect.colliderect(ball))
+
+
+                # self.target.rect.collidepoint(
+                #     mapedX + (self.target.width / 4) + 20,
+                #     mapedY + (self.target.height / 4) + 20,
+                # )
+
+
+
+
+
+            if ( self.target.rect.colliderect(ball)
                 and stop_game != True
             ):
-                self.start_time = pyg.time.get_ticks()
-                self.hit = True
+                if not self.hit:
+                    self.start_time = pyg.time.get_ticks()
+                    self.hit = True
                 self.target.update(True)
 
             else:
@@ -249,9 +261,9 @@ def main(window):
                     previous = game.target.score
                     if previous >= highscore:
                         highscore = game.target.score
-                        game.target.score = 0
+                    game.target.score = 0
 
-                if event.key == pyg.K_SPACE:
+                if event.key == pyg.K_SPACE and game.target.score != 0:
                     game.target.score -= 1
 
         game.upddate()
