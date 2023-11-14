@@ -9,13 +9,15 @@ from utlis import Calibrate as cam
 from Ml import Object
 import cv2
 import numpy as np
-import imageio
+import time
 
 fps = 60
 pyg.init()
 pyg.display.set_caption("GolTrainer")
 mixer.init()
-backgroundsong = mixer.Sound("resources/backgroundMusic.mp3")
+mixer.music.load("resources/backgroundMusic.mp3")
+mixer.music.play(loops= -1)
+
 
 
 info = pyg.display.Info()
@@ -124,18 +126,21 @@ class GameEngine:
     def __init__(self, window):
         self.window = window
         self.post = Post(self.window, postImg)
-        self.cam = 0
+        self.cam = 1
+        self.hit = False
         self.target = Target(self.window, targetImg, self.post)
         self.list = [lifeSystem(window), lifeSystem(window), lifeSystem(window)]
         self.camera = cam(0, 0, self.cam, "object")
         self.camera.setup()
-        self.model_path = "resources/model-fp16-gpu.tflite"
+        self.model_path = "resources/model.tflite"
         self.ball = Object(self.model_path, 0.5)
         self.list_of_gifs = [
             "resources/goal1.gif",
             "resources/goal2.gif",
             "resources/goal3.gif",
         ]
+        self.start_time = 0
+        self.delay_duration = 3000
 
         self.current_gif = int(
             random.randrange(start=0, stop=len(self.list_of_gifs) - 1)
@@ -145,6 +150,7 @@ class GameEngine:
         global highscore, stop_game
         self.camera.loop()
         self.post.update()
+        self.start_time = pyg.time.get_ticks()
         if not self.camera.is_selecting:
             frame = self.camera.imageWarped
             height, width, channel = frame.shape
@@ -162,25 +168,21 @@ class GameEngine:
                 and stop_game != True
             ):
                 self.target.update(True)
+                self.hit = True
 
-            # if (
-            #     self.target.rect.collidepoint(
-            #         int(mapedX + width_b / 2), int(mapedY + height_h / 2)
-            #     )
-            #     and stop_game != True
-            #     and width_b < 42
-            # ):
-            #     self.target.update(True)
 
             else:
-                self.target.update(False)
-                if len(self.list) > 0 and stop_game != True:
-                    # self.list.remove(self.list[len(self.list) - 1])
-                    #
-                    previous = self.target.score
-                    if previous >= highscore:
-                        highscore = self.target.score
-                        self.target.score = 0
+                self.hit = False
+
+            # else:
+            #     self.target.update(False)
+            #     if len(self.list) > 0 and stop_game != True:
+            #         # self.list.remove(self.list[len(self.list) - 1])
+            #         #
+            #         previous = self.target.score
+            #         if previous >= highscore:
+            #             highscore = self.target.score
+            #             self.target.score = 0
 
             cv2.imshow("Custom Object Detection", image)
 
@@ -192,6 +194,11 @@ class GameEngine:
         display_text(
             highs, window, (window.get_width() - 200), 100, 56, (255, 255, 255)
         )
+
+        if self.hit:
+            display_text("Goal!!",window,(window.get_width()/2),(window.get_height()/2),200,(0,255,0))
+
+            
 
         for index in range(len(self.list)):
             self.list[index].draw((index * 60) + window.get_width() - 300, 20)
@@ -221,11 +228,9 @@ def main(window):
     clock = pyg.time.Clock()
     global highscore, startGame, stop_game
     game = GameEngine(window)
-    backgroundsong.play(loops=1).set_volume(1)
     while startGame:
         clock.tick(fps)
         print(fps)
-        game.render()
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
                 startGame = False
@@ -245,6 +250,7 @@ def main(window):
                     #     game.target.score = 0
 
         game.upddate()
+        game.render()
         # print(stop_game)
     game.camera.cap.release()
     cv2.destroyAllWindows()
