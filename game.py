@@ -16,8 +16,7 @@ pyg.init()
 pyg.display.set_caption("GolTrainer")
 mixer.init()
 mixer.music.load("resources/backgroundMusic.mp3")
-mixer.music.play(loops= -1)
-
+mixer.music.play(loops=-1)
 
 
 info = pyg.display.Info()
@@ -119,7 +118,7 @@ class lifeSystem:
     def draw(self, x, y):
         rect = pyg.Rect(x, y, 1, 1)
         self.hartimg = pyg.transform.scale(self.hartimg, (50, 50))
-        self.window.blit(self.hartimg, rect)
+        # self.window.blit(self.hartimg, rect)
 
 
 class GameEngine:
@@ -130,21 +129,12 @@ class GameEngine:
         self.hit = False
         self.target = Target(self.window, targetImg, self.post)
         self.list = [lifeSystem(window), lifeSystem(window), lifeSystem(window)]
-        self.camera = cam(0, 0, self.cam, "object")
+        self.camera = cam(0, 1, self.cam, "object")
         self.camera.setup()
         self.model_path = "resources/model.tflite"
         self.ball = Object(self.model_path, 0.5)
-        self.list_of_gifs = [
-            "resources/goal1.gif",
-            "resources/goal2.gif",
-            "resources/goal3.gif",
-        ]
         self.start_time = 0
         self.delay_duration = 3000
-
-        self.current_gif = int(
-            random.randrange(start=0, stop=len(self.list_of_gifs) - 1)
-        )
 
     def upddate(self):
         global highscore, stop_game
@@ -167,9 +157,9 @@ class GameEngine:
                 )
                 and stop_game != True
             ):
-                self.target.update(True)
+                self.start_time = pyg.time.get_ticks()
                 self.hit = True
-
+                self.target.update(True)
 
             else:
                 self.hit = False
@@ -196,9 +186,21 @@ class GameEngine:
         )
 
         if self.hit:
-            display_text("Goal!!",window,(window.get_width()/2),(window.get_height()/2),200,(0,255,0))
+            current_time = pyg.time.get_ticks()
+            elapsed_time = current_time - self.start_time
 
-            
+            if elapsed_time < self.delay_duration:
+                display_text(
+                    "Goal!!",
+                    window,
+                    (window.get_width() / 2),
+                    (window.get_height() / 2),
+                    200,
+                    (0, 255, 0),
+                )
+
+            else:
+                self.hit = False
 
         for index in range(len(self.list)):
             self.list[index].draw((index * 60) + window.get_width() - 300, 20)
@@ -244,10 +246,13 @@ def main(window):
                         lifeSystem(window),
                     ]
                     stop_game = False
-                    # previous = game.target.score
-                    # if previous >= highscore:
-                    #     highscore = game.target.score
-                    #     game.target.score = 0
+                    previous = game.target.score
+                    if previous >= highscore:
+                        highscore = game.target.score
+                        game.target.score = 0
+
+                if event.key == pyg.K_SPACE:
+                    game.target.score -= 1
 
         game.upddate()
         game.render()
