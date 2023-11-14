@@ -129,7 +129,7 @@ class GameEngine:
         self.hit = False
         self.target = Target(self.window, targetImg, self.post)
         self.list = [lifeSystem(window), lifeSystem(window), lifeSystem(window)]
-        self.camera = cam(0, 1, self.cam, "object")
+        self.camera = cam(0, 0, self.cam, "object")
         self.camera.setup()
         self.model_path = "resources/model.tflite"
         self.ball = Object(self.model_path, 0.5)
