@@ -125,7 +125,7 @@ class GameEngine:
     def __init__(self, window):
         self.window = window
         self.post = Post(self.window, postImg)
-        self.cam = 1
+        self.cam = 0
         self.hit = False
         self.target = Target(self.window, targetImg, self.post)
         self.list = [lifeSystem(window), lifeSystem(window), lifeSystem(window)]
