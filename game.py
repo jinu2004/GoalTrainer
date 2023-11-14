@@ -21,7 +21,7 @@ mixer.music.set_volume(0.1)
 
 
 info = pyg.display.Info()
-print(info)
+# print(info)
 display = Tk()
 targetWidth, targetHeight = 150, 150
 winInWidth, winInHeight = (
@@ -38,6 +38,9 @@ postImg = pyg.image.load(join("resources", "football_goal_PNG10.png")).convert_a
 highscore = 0
 startGame = True
 stop_game = False
+current_time = pyg.time.get_ticks()
+font = pyg.font.Font(None, 36)
+text_color = (255, 255, 255)
 
 
 def display_text(text, window, x, y, size=36, color=(0, 0, 0)):
@@ -46,6 +49,7 @@ def display_text(text, window, x, y, size=36, color=(0, 0, 0)):
     text_rect = text_surface.get_rect()
     text_rect.center = (x, y)
     window.blit(text_surface, text_rect)
+
 
 
 class Target:
@@ -69,7 +73,7 @@ class Target:
         self.window.blit(self.img, self.rect)
         score = "Score : " + str(self.score)
         display_text(score, self.window, 150, 100, 56, (255, 255, 255))
-        print(self.score)
+        # print(self.score)
 
     def update(self, hit):
         if hit:
@@ -134,8 +138,8 @@ class GameEngine:
         self.camera.setup()
         self.model_path = "resources/model.tflite"
         self.ball = Object(self.model_path, 0.5)
-        # self.start_time = 0
-        self.delay_duration = 100000
+        self.start_time = None
+        self.delay_duration = 3000
 
     def upddate(self):
         global highscore, stop_game
@@ -151,23 +155,16 @@ class GameEngine:
             mapedX = np.interp(ballX, (0, width), (0, self.window.get_width()))
             mapedY = np.interp(ballY, (0, height), (0, self.window.get_height()))
 
-            ball = pyg.Rect(mapedX, mapedY,width_b,height_h)
+            ball = pyg.Rect(mapedX, mapedY, width_b, height_h)
 
             # print(self.target.rect.colliderect(ball))
 
+            # self.target.rect.collidepoint(
+            #     mapedX + (self.target.width / 4) + 20,
+            #     mapedY + (self.target.height / 4) + 20,
+            # )
 
-                # self.target.rect.collidepoint(
-                #     mapedX + (self.target.width / 4) + 20,
-                #     mapedY + (self.target.height / 4) + 20,
-                # )
-
-
-
-
-
-            if ( self.target.rect.colliderect(ball)
-                and stop_game != True
-            ):
+            if self.target.rect.colliderect(ball) and stop_game != True:
                 if not self.hit:
                     self.start_time = pyg.time.get_ticks()
                     self.hit = True
@@ -198,10 +195,6 @@ class GameEngine:
         )
 
         if self.hit:
-            current_time = pyg.time.get_ticks()
-            elapsed_time = current_time - self.start_time
-
-            if elapsed_time < self.delay_duration:
                 display_text(
                     "Goal!!",
                     window,
@@ -210,9 +203,6 @@ class GameEngine:
                     200,
                     (0, 255, 0),
                 )
-
-            else:
-                self.hit = False
 
         for index in range(len(self.list)):
             self.list[index].draw((index * 60) + window.get_width() - 300, 20)
@@ -244,7 +234,7 @@ def main(window):
     game = GameEngine(window)
     while startGame:
         clock.tick(fps)
-        print(fps)
+        # print(fps)
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
                 startGame = False
