@@ -11,13 +11,15 @@ import cv2
 import numpy as np
 import time
 
+
 fps = 60
 pyg.init()
 pyg.display.set_caption("GolTrainer")
 mixer.init()
-mixer.music.load("resources/backgroundMusic.mp3")
+mixer.music.load("resources/Over_the_Horizon.mp3")
 mixer.music.play(loops=-1)
 mixer.music.set_volume(0.1)
+
 
 
 info = pyg.display.Info()
@@ -35,6 +37,8 @@ background = pyg.transform.smoothscale(background, window.get_size())
 targetImg = pyg.image.load(join("resources", "png-image.png")).convert_alpha()
 targetImg = pyg.transform.scale(targetImg, [targetWidth, targetHeight])
 postImg = pyg.image.load(join("resources", "football_goal_PNG10.png")).convert_alpha()
+
+spritImg = pyg.image.load(join("resources", "ezgif.com-gif-maker.png"))
 highscore = 0
 startGame = True
 stop_game = False
@@ -49,6 +53,22 @@ def display_text(text, window, x, y, size=36, color=(0, 0, 0)):
     text_rect = text_surface.get_rect()
     text_rect.center = (x, y)
     window.blit(text_surface, text_rect)
+
+
+
+class spriteAnim():
+    def __init__(self,window):
+        self.window = window
+    def draw(self,sprite,width,height):
+        y = float((self.window.get_height()/2) - height)
+        x = float((self.window.get_width()/2) - width)
+        self.window.blit(sprite,(x,y))
+        pyg.display.flip()
+
+
+
+
+
 
 
 
@@ -130,7 +150,7 @@ class GameEngine:
     def __init__(self, window):
         self.window = window
         self.post = Post(self.window, postImg)
-        self.cam = 0
+        self.cam = 1
         self.hit = False
         self.target = Target(self.window, targetImg, self.post)
         self.list = [lifeSystem(window), lifeSystem(window), lifeSystem(window)]
@@ -140,6 +160,7 @@ class GameEngine:
         self.ball = Object(self.model_path, 0.5)
         self.start_time = None
         self.delay_duration = 3000
+        self.sprite = spriteAnim(window)
 
     def upddate(self):
         global highscore, stop_game
@@ -157,21 +178,14 @@ class GameEngine:
 
             ball = pyg.Rect(mapedX, mapedY, width_b, height_h)
 
-            # print(self.target.rect.colliderect(ball))
+            collide = self.target.rect.colliderect(ball)
 
-            # self.target.rect.collidepoint(
-            #     mapedX + (self.target.width / 4) + 20,
-            #     mapedY + (self.target.height / 4) + 20,
-            # )
 
-            if self.target.rect.colliderect(ball) and stop_game != True:
+            if collide and stop_game != True:
                 if not self.hit:
-                    self.start_time = pyg.time.get_ticks()
                     self.hit = True
                 self.target.update(True)
 
-            else:
-                self.hit = False
 
             # else:
             #     self.target.update(False)
@@ -194,21 +208,23 @@ class GameEngine:
             highs, window, (window.get_width() - 200), 100, 56, (255, 255, 255)
         )
 
-        if self.hit:
-                display_text(
-                    "Goal!!",
-                    window,
-                    (window.get_width() / 2),
-                    (window.get_height() / 2),
-                    200,
-                    (0, 255, 0),
-                )
 
         for index in range(len(self.list)):
             self.list[index].draw((index * 60) + window.get_width() - 300, 20)
 
         self.post.draw()
         self.target.draw()
+
+        
+        if self.hit:
+            for i in range(103):
+                spritImg = pyg.image.load(join("resources/frames/", "Omg_"+str(i)+".jpg"))
+                width = spritImg.get_width()/2
+                height = spritImg.get_height()/2
+                self.sprite.draw(spritImg,width,height)
+                if(i==102):
+                    self.hit = False
+                    break
 
         if len(self.list) == 0:
             previous = self.target.score
@@ -268,3 +284,4 @@ def main(window):
 
 if __name__ == "__main__":
     main(window)
+
