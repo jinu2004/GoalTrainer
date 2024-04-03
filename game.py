@@ -1,4 +1,5 @@
 from ntpath import join
+import threading
 from turtle import Screen
 import pygame as pyg
 from pygame.locals import *
@@ -50,6 +51,16 @@ def display_text(text, window, x, y, size=36, color=(0, 0, 0)):
     text_rect.center = (x, y)
     window.blit(text_surface, text_rect)
 
+
+def Pop_UP(text, window, x, y, size=36, color=(0, 0, 0)):
+    font = pyg.font.Font(None, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (x, y)
+    window.blit(text_surface, text_rect)
+    pyg.time.delay(5000)
+
+    return False
 
 
 class Target:
@@ -140,6 +151,16 @@ class GameEngine:
         self.ball = Object(self.model_path, 0.5)
         self.start_time = None
         self.delay_duration = 3000
+        # self.pop_up = threading.Thread(
+        # #     target=Pop_UP(
+        # #         "Goal",
+        # #         window,
+        # #         (window.get_width() / 2),
+        # #         (window.get_height() / 2),
+        # #         56,
+        # #         (255, 255, 255),
+        # #     )
+        # # )
 
     def upddate(self):
         global highscore, stop_game
@@ -195,14 +216,8 @@ class GameEngine:
         )
 
         if self.hit:
-                display_text(
-                    "Goal!!",
-                    window,
-                    (window.get_width() / 2),
-                    (window.get_height() / 2),
-                    200,
-                    (0, 255, 0),
-                )
+            self.hit = self.pop_up.start()
+            self.pop_up.join()
 
         for index in range(len(self.list)):
             self.list[index].draw((index * 60) + window.get_width() - 300, 20)
